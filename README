@@ -1,0 +1,103 @@
+*** HW-3 (README) ***
+
+Group No.:	 18
+
+Members	:	Sayan Bandhyopadhyay
+		Hemant Kumar Pandey
+		Gaurav Dahiya
+		Vaashu Sharma
+
+
+*** AIM ***
+
+The purpose of this assignment is to develop a Linux kernel-based system to support per-process system call vectors. Since in Linux, it is prohibited to change the global system call/vector table from a loadable module, having different syscalls per process for different tasks can be very helpful. The system calls are modified in a such a way that they perform function which is a little different from the original system call. The change in the modified syscalls is trivial and just to demonstrate that the original behavior has been modified.
+
+
+*** INTRODUCTION ***
+
+We have created vector which has the following syscalls :
+1.)	Open *
+2.)	Read #
+3.)	Write #
+4.)	Link *
+5.)	Unlink *
+6.)	Close #
+
+Along with the modified version of these syscalls:
+
+Modified Open:
+1 - Ignore if path not absolute
+2 - Ignore if path is absolute
+
+Modified Read:
+1 - Ignore if fd = 4
+2 - Ignore if fd = 5
+
+Modified Write:
+1 - Ignore if fd = 4
+2 - Ignore if fd = 5
+
+Modified Link:
+1 - Ignore if path not absolute
+2 - Ignore if path is absolute
+
+Modified Unlink:
+1 - Ignore if path not absolute
+2 - Ignore if path is absolute
+
+Modified Close:
+1 - Ignore if fd = 4
+2 - Ignore if fd = 5
+
+
+There is another syscall 'clone' which is modified:
+When a process is forked, it inherits the syscall_vector from its parent. The clone(2) syscall which is provided a new flag which decides whether the child would inherit the syscall vector of its child or not. If the flag is -1 it inherits its parent vector. If it is 1 or 2 then it takes the vectors 1 or 2 respectively.
+
+A ioctl() is implemented which changes the syscall vector used by a running process id. We have tried to handle all the race conditions and implemented the necessary locks and also passes the checkpatch.pl script which makes sure that the code is written as per the standards.
+
+*** FILES AND THEIR DESCRIPTION ***
+
+The final code is having the following files -
+
+*** sys_xvector.c ***
+This file contains all the information related to the vector and the code which performs the clone functionality.
+
+
+*** clone.c ***
+This file contains all the information related clone2.
+
+
+*** MODULE IOCTL ***
+
+**** ioctl_module/ioctl_call.c ****
+This file contains the user level code which set/reset/list vectors for processes.
+
+
+**** ioctl_module/ioctl_call.h ****
+This is the header file for all the constants/structs related to ioctl.
+
+
+**** ioctl_module/ioctl_module.c ****
+This file contains the kernel code for the ioctl.
+
+
+*** HOW TO SETUP/RUN ***
+
+Setup ->
+- Make kernel and install
+- Make hw3, ioctl_module directories
+- run the 2 scripts in the above mentioned directories (sh install_module.sh)
+
+Run ->
+- Run the binary ioctl_call to play around with ioctls and set/reset/show vectors for processes (use -h to see help)
+- Run the binary clone to check clone2 functionality (ex - ./clone)
+- Run the binary tester which is a running process to execute open/read/write/close operations on 3 files (ex - ./tester)
+- Run the binary tester_unlink which is a running process to execute link/unlink operations (ex - ./tester_unlink)
+
+
+*** REFERENCES ***
+1) http://lxr.free-electrons.com/ - for code reference and navigation online
+2) http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/Errors/unix_system_errors.html - for error code reference
+3) http://man7.org/linux/man-pages/man3/opterr.3.html - understanding getopt
+4) http://man7.org/linux/man-pages/ - for overview to various flags and existing calls
+
